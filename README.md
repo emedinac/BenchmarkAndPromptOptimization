@@ -1,8 +1,6 @@
 # Benchmark and Prompt Optimization Platform for Offline Models
 
-## Why This Project?
-
-Over the past few months, I’ve been diving deep into the world of LLMs, agents, and tool integration, exploring different frameworks. To deepen my understanding and experiment with real-world applications, I’m building a series of practical, domain-specific systems :)
+Benchmark and Prompt Optimization Platform for Offline Models (Locally‑Hosted) LLMs for Financial Q&A in the stock market text data.
 
 ## Locally‑Hosted LLM for Financial Q&A
 

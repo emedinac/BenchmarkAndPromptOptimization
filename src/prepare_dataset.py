@@ -43,8 +43,8 @@ def build_validation(samples: int, seed: int = 0):
     return dataset_texts, ground_truth
 
 
-def get_dataset_embeddings(embeddings_path: str = "stock_market_embeddings.npy",
-                           dataset_path: str = "stock_market_datasets"):
+def get_dataset_embeddings(embeddings_path: str = "../stock_market_embeddings.npy",
+                           dataset_path: str = "../stock_market_datasets"):
     if not Path(embeddings_path).exists():
         merged_dataset = get_dataset()
         questions = merged_dataset["Question"]
