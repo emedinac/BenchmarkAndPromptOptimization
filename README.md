@@ -2,11 +2,11 @@
 
 ## Why This Project?
 
-Over the past few months, I’ve been diving deep into the world of LLMs, agents, and tool integration, exploring different frameworks. As part of a 10-project portfolio designed to apply and demonstrate this growing expertise, I’m building a series of practical, domain-specific systems that explore different prompt engineering techniques, RAG, Graph-RAG, agent workflows, evaluation strategies, among others. This is the first in that series.
+Over the past few months, I’ve been diving deep into the world of LLMs, agents, and tool integration, exploring different frameworks. To deepen my understanding and experiment with real-world applications, I’m building a series of practical, domain-specific systems :)
 
-## Project #1: Locally‑Hosted LLM for Financial Q&A
+## Locally‑Hosted LLM for Financial Q&A
 
-A fully offline system leveraging Ollama to run local LLMs for experimenting with prompt engineering techniques, including Chain-of-Thought (CoT) and Self-Consistency on answering finance-related questions, particularly around stock market data and trends. This tool is designed for fast iteration, performance benchmarking, and analysis of prompt effectiveness in a domain where precision matters.
+A fully offline system leveraging Ollama to run local LLMs for experimenting with prompt engineering techniques, including Chain-of-Thought (CoT) and Self-Consistency on answering finance-related questions, particularly around stock market data and trends. This tool is designed for fast iteration, performance benchmarking, and analysis of prompt effectiveness in a domain where precision matters. Includes interactive parameter tuning (for the LLM and metrics), metrics visualization, and an experimentation workflow.
 
 Tech stacks and concepts applied:
 
