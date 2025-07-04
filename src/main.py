@@ -3,7 +3,7 @@ import numpy as np
 import prepare_dataset
 from metrics import Metrics
 import ollama_llms as llms
-from prompts import Prompter, available_prompt_engineeing_tpye
+from prompts import Prompter, available_prompt_engineeing
 
 # Test on Laptop GPU
 # Temporal solution for 1 GPU.
@@ -54,12 +54,6 @@ if __name__ == '__main__':
     else:
         input_texts, ground_truth = prepare_dataset.build_validation(samples=15,
                                                                      seed=0)
-    test_models = ['llama3',
-                   'llama3.2',
-                   'deepseek-r1',
-                   'gemma3',
-                   'qwen3',
-                   ]
 
     think = [False, True]
 
@@ -69,10 +63,10 @@ if __name__ == '__main__':
     results = {}
     beshort = True
     prompter = Prompter(beshort=beshort, examples_to_use=None)
-    for model in test_models:
+    for model in llms.available_llm_models:
         skip_model = False
         for th in think:
-            for prompt in available_prompt_engineeing_tpye:
+            for prompt in available_prompt_engineeing:
                 # for prompt in ["self-consistency"]:
                 for idx, question in enumerate(input_texts):
                     print(

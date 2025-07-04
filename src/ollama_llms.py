@@ -95,6 +95,14 @@ def extract_metrics(response, normalized_term=1e9):
     }
 
 
+available_llm_models = ['llama3',
+                        'llama3.2',
+                        'deepseek-r1',
+                        'gemma3',
+                        'qwen3',
+                        ]
+
+
 def runLLM(messages: list[str],
            think: bool = False,
            model: str = 'llama3.2',

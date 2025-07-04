@@ -56,6 +56,8 @@ curl -fsSL https://ollama.com/install.sh | sh
 
 ## Run
 
+Tested models: `llama3`, `llama3.2`, `deepseek-r1`, `gemma3`, `qwen3`
+
 Run `python3 src/prepare_dataset.py` to get the embeddings, but the main code also compute them if they are not present :) 
 
 Run the main logic: `python3 main.py`

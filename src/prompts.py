@@ -64,13 +64,13 @@ simple_examples_few_shot = [{"Q": "What is the market capitalization of Apple?",
 # Here the input texts for experiments :)
 test_texts = []
 
-available_prompt_engineeing_tpye = ["auto-cot",
-                                    "zero-cot",
-                                    "few-shot-cot",
-                                    "zero-shot",
-                                    "few-shot",
-                                    "self-consistency",
-                                    ]
+available_prompt_engineeing = ["auto-cot",
+                               "zero-cot",
+                               "few-shot-cot",
+                               "zero-shot",
+                               "few-shot",
+                               "self-consistency",
+                               ]
 
 
 def faiss_kmeans(embeddings: np.ndarray, num_clusters: int = 10, n_iter: int = 25):
@@ -135,7 +135,8 @@ class Prompter:
 
             self.exemplar_indices = [int(np.argmin(np.linalg.norm(
                 self.reference_dataset_embeddings - center, axis=1))) for center in self.centroids]
-            self.exemplars = [self.reference_dataset[i] for i in self.exemplar_indices]
+            self.exemplars = [self.reference_dataset[i]
+                              for i in self.exemplar_indices]
 
         # Generate chain-of-thought for each exemplar
         for ex in self.exemplars:
