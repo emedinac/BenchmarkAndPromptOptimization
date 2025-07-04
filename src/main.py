@@ -94,6 +94,8 @@ if __name__ == '__main__':
                     # save experiment
                     results[f"{prompt}_{model}_th-{th}_{idx}"] = {}
                     results[f"{prompt}_{model}_th-{th}_{idx}"]["message"] = message
+                    results[f"{prompt}_{model}_th-{th}_{idx}"]["question"] = question['content']
+                    results[f"{prompt}_{model}_th-{th}_{idx}"]["gt"] = reference
                     results[f"{prompt}_{model}_th-{th}_{idx}"]["stats"] = stats
                     results[f"{prompt}_{model}_th-{th}_{idx}"]["metrics"] = scores
                     np.save(f"results/{prompt}_{model}_th-{th}_{idx}.npy",
