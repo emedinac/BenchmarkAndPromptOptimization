@@ -57,3 +57,8 @@ def get_dataset_embeddings(embeddings_path: str = "../stock_market_embeddings.np
         embeddings = np.load(embeddings_path)
         merged_dataset = load_from_disk(dataset_path)
     return embeddings, merged_dataset
+
+
+if __name__ == '__main__':
+    get_dataset_embeddings()
+    print("npy file with bmbeddings created...")

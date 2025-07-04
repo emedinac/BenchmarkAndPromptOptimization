@@ -56,4 +56,6 @@ curl -fsSL https://ollama.com/install.sh | sh
 
 ## Run
 
-For now: `python3 main.py`
+Run `python3 src/prepare_dataset.py` to get the embeddings, but the main code also compute them if they are not present :) 
+
+Run the main logic: `python3 main.py`

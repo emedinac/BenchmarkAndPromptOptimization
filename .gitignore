@@ -1,5 +1,6 @@
 # Custom
 stock_market_datasets/
+*.npy
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

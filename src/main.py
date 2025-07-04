@@ -100,4 +100,7 @@ if __name__ == '__main__':
                     results[f"{prompt}_{model}_th-{th}_{idx}"]["stats"] = stats
                     results[f"{prompt}_{model}_th-{th}_{idx}"]["metrics"] = scores
                     print(f"{scores}")
+    import numpy as np
+
+    np.save("results.npy", results)
     print("end")
