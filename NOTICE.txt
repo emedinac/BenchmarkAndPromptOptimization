@@ -1,0 +1,7 @@
+NOTICE:
+
+This repository is licensed under a Creative Commons NonCommercial License with additional restrictions.
+
+Commercial usage, machine learning training, fine-tuning, or evaluation with this code or any derived data is strictly prohibited.
+
+For licenses beyond non-commercial personal or academic use, contact the author.

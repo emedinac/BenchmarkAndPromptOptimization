@@ -1,0 +1,21 @@
+Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+https://creativecommons.org/licenses/by-nc/4.0/
+
+You are free to:
+- Share — copy and redistribute the material in any medium or format
+- Adapt — remix, transform, and build upon the material
+
+Under the following terms:
+- **Attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made.
+- **NonCommercial** — You may not use the material for commercial purposes.
+
+🚫 Additional Restrictions (AI/ML Use Clause):
+
+- The code and data **may not be used to train, fine-tune, or evaluate machine learning models**, including but not limited to:
+  - Foundation models
+  - Language models (LLMs)
+  - Vision-language models (VLMs)
+  - Embedding models or any AI system
+- You may not include this code in datasets or corpora used for training.
+
+📝 Disclaimer: This is a modified license and **may not be OSI-compliant**. If you're distributing software, you are advised to consult a legal professional for compliance.

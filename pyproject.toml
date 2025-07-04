@@ -1,0 +1,30 @@
+[project]
+name = "benchmarkandpromptoptimization"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "accelerate>=1.8.1",
+    "bert-score>=0.3.13",
+    "bleurt",
+    "bs4>=0.0.2",
+    "cer>=1.2.0",
+    "datasets>=3.6.0",
+    "evaluate>=0.4.4",
+    "faiss-gpu>=1.7.2",
+    "jiwer>=4.0.0",
+    "mauve-text>=0.4.0",
+    "numpy==1.26.4",
+    "ollama>=0.5.1",
+    "rouge-score>=0.1.2",
+    "sacrebleu>=2.5.1",
+    "sacremoses>=0.1.1",
+    "scikit-learn>=1.7.0",
+    "sentence-transformers>=5.0.0",
+    "tf-keras>=2.18.0",
+    "transformers>=4.53.0",
+]
+
+[tool.uv.sources]
+bleurt = { git = "https://github.com/google-research/bleurt.git" }

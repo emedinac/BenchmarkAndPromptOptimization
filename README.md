@@ -1,2 +1,61 @@
 # Benchmark and Prompt Optimization Platform for Offline Models
-System that allows loading any local model, testing various prompt engineering templates (zero-shot, few-shot, chain-of-thought), and measuring results on specific tasks.
+
+## Why This Project?
+
+Over the past few months, I’ve been diving deep into the world of LLMs, agents, and tool integration, exploring different frameworks. As part of a 10-project portfolio designed to apply and demonstrate this growing expertise, I’m building a series of practical, domain-specific systems that explore different prompt engineering techniques, RAG, Graph-RAG, agent workflows, evaluation strategies, among others. This is the first in that series.
+
+## Project #1: Locally‑Hosted LLM for Financial Q&A
+
+A fully offline system leveraging Ollama to run local LLMs for experimenting with prompt engineering techniques, including Chain-of-Thought (CoT) and Self-Consistency on answering finance-related questions, particularly around stock market data and trends. This tool is designed for fast iteration, performance benchmarking, and analysis of prompt effectiveness in a domain where precision matters.
+
+Tech stacks and concepts applied:
+
+- Ollama: LLM framework with request and BeautifulSoup for url search.
+- Chain‑of‑Thought (CoT): Guides the model to generate intermediate reasoning steps before answering, improving clarity and problem-solving accuracy
+- Self‑Consistency: Runs multiple zero/few-shot CoT generations and picks the most similar and voted answer (via cosine similarity for embeddings), reducing single‑path bias and boosting reliability.
+- Huggungface environemnt: Load and evaluate different dataset.
+- Gradio: minimal and simple Front-end framework for software integration between AI and other software skills. It was used for visualziation. Not only test prompts, but facilitate iterative design with metrics.
+
+Specifically, Add:
+
+- [X] Ollama: with different input parameters (e.g. temperature, context, etc).
+- [X] Simple and minimal url search functionality (request and BeautifulSoup).
+- [X] zero-shot.
+- [X] few-shot.
+- [X] zero-shot CoT.
+- [X] few-shot CoT.
+- [X] Self-Consistency.
+- [X] several metrics using Huggingface lib.
+- [X] Dataset Loader (Huggingface datasets only)
+- [ ] Interface and Visualization with Gradio.
+- [ ] Set main pipeline and argument customazation.
+- [ ] Interactivity in the visualizations.
+
+
+
+## Install
+
+```bash
+python3.10 -m venv mvp1
+source mvp1/bin/activate
+pip install --upgrade pip
+pip install uv
+uv init . 
+uv sync --active
+```
+
+Add more packages, not all metrics (from evaluate) were installed for this demo.
+
+```bash
+uv add <package> --active
+```
+
+Install Ollama - Should be done via Dockerfile later on.
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+## Run
+
+For now: `python3 main.py`
