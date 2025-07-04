@@ -1,17 +1,19 @@
 
-from prompts import Prompter, available_prompt_engineeing_tpye
-import ollama_llms as llms
-import pandas as pd
-from metrics import Metrics
+import numpy as np
 import prepare_dataset
+from metrics import Metrics
+import ollama_llms as llms
+from prompts import Prompter, available_prompt_engineeing_tpye
 
-
-def save_results():
-    results[f"{prompt}_{model}_th-{th}_{idx}"] = {}
-    results[f"{prompt}_{model}_th-{th}_{idx}"]["message"] = message
-    results[f"{prompt}_{model}_th-{th}_{idx}"]["stats"] = stats
-    results[f"{prompt}_{model}_th-{th}_{idx}"]["metrics"] = scores
-
+# Test on Laptop GPU
+# Temporal solution for 1 GPU.
+# Ollama doesnt have space to run on large text inputs.
+# However it works pretty well :D
+import tensorflow as tf
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
 
 if __name__ == '__main__':
     from inputs import test_texts
@@ -91,6 +93,7 @@ if __name__ == '__main__':
                     if metrics is None:
                         skip_model = True
                     if reference is not None and len(message) > 0:
+                        print("computing metrics")
                         scores = metrics.compute(message, reference)
                     else:
                         scores = None
@@ -99,8 +102,10 @@ if __name__ == '__main__':
                     results[f"{prompt}_{model}_th-{th}_{idx}"]["message"] = message
                     results[f"{prompt}_{model}_th-{th}_{idx}"]["stats"] = stats
                     results[f"{prompt}_{model}_th-{th}_{idx}"]["metrics"] = scores
+                    np.save(f"results/{prompt}_{model}_th-{th}_{idx}.npy",
+                            results[f"{prompt}_{model}_th-{th}_{idx}"]
+                            )
                     print(f"{scores}")
-    import numpy as np
 
-    np.save("results.npy", results)
+    np.save("results/results.npy", results)
     print("end")

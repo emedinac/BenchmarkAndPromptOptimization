@@ -13,6 +13,7 @@ dependencies = [
     "datasets>=3.6.0",
     "evaluate>=0.4.4",
     "faiss-gpu>=1.7.2",
+    "gradio>=5.35.0",
     "jiwer>=4.0.0",
     "mauve-text>=0.4.0",
     "numpy==1.26.4",
@@ -22,6 +23,7 @@ dependencies = [
     "sacremoses>=0.1.1",
     "scikit-learn>=1.7.0",
     "sentence-transformers>=5.0.0",
+    "tensorflow>=2.18.1",
     "tf-keras>=2.18.0",
     "transformers>=4.53.0",
 ]

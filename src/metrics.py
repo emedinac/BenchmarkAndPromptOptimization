@@ -26,7 +26,7 @@ class Metrics:
         pred = pred.strip()
         ref = ref.strip()
         results = {}
-        with torch.no_grad():
+        with torch.no_grad():  # no idea why this works for metrics :D
             for m in self.list_of_metrics:
                 if isinstance(m, str):
                     metric = self.metrics[m]
@@ -37,7 +37,7 @@ class Metrics:
                 if "bertscore" in m:
                     kwargs = {"model_type": conf}
                 elif "perplexity" in m:
-                    kwargs = {"model_id": "gpt2", "device": "cpu"}
+                    kwargs = {"model_id": "distilgpt2", "device": "cpu"}
                 results[m] = metric.compute(predictions=[pred],
                                             references=[ref],
                                             **kwargs)

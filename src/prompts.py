@@ -64,11 +64,11 @@ simple_examples_few_shot = [{"Q": "What is the market capitalization of Apple?",
 # Here the input texts for experiments :)
 test_texts = []
 
-available_prompt_engineeing_tpye = ["zero-shot",
-                                    "few_shot",
+available_prompt_engineeing_tpye = ["auto-cot",
                                     "zero-cot",
                                     "few-shot-cot",
-                                    "auto-cot",
+                                    "zero-shot",
+                                    "few-shot",
                                     "self-consistency",
                                     ]
 
@@ -124,7 +124,7 @@ class Prompter:
     def _zero_cot(question):
         return f"Question: {question}\nLet's think step-by-step. Answer:"
 
-    def _compute_steps(self, question, exemplars):
+    def _compute_steps(self, exemplars):
         if self.reference_dataset_embeddings is None:
             self.reference_dataset_embeddings, self.reference_dataset = get_dataset_embeddings()
 
@@ -133,12 +133,12 @@ class Prompter:
                                                        num_clusters=exemplars,
                                                        n_iter=25)
 
-        exemplar_indices = [int(np.argmin(np.linalg.norm(
-            self.reference_dataset_embeddings - center, axis=1))) for center in self.centroids]
-        exemplars = [self.reference_dataset[i] for i in exemplar_indices]
+            self.exemplar_indices = [int(np.argmin(np.linalg.norm(
+                self.reference_dataset_embeddings - center, axis=1))) for center in self.centroids]
+            self.exemplars = [self.reference_dataset[i] for i in self.exemplar_indices]
 
         # Generate chain-of-thought for each exemplar
-        for ex in exemplars:
+        for ex in self.exemplars:
             ex_q = ex["Question"]
             cot_prompt = self._zero_cot(ex_q)
             cot_prompt = {'role': 'user',
@@ -146,13 +146,13 @@ class Prompter:
             ex_cot = llms.runLLM([cot_prompt])
             ex["Question"] = llms.remove_links(ex_q)  # temporal patch
             ex["cot"] = ex_cot
-        return exemplars
+        return self.exemplars
 
-    def _auto_cot(self, question, samples=10):
+    def _auto_cot(self, question, samples=7):
         # ref: https://github.com/amazon-science/auto-cot/blob/main/run_inference.py
         if self.select is not None:
             samples = self.select
-        exemplars = self._compute_steps(question, samples)
+        exemplars = self._compute_steps(samples)
 
         sections = []
         for ex in exemplars:
