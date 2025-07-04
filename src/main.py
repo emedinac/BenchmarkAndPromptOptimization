@@ -4,6 +4,7 @@ import prepare_dataset
 from metrics import Metrics
 import ollama_llms as llms
 from prompts import Prompter, available_prompt_engineeing
+import time
 
 # Test on Laptop GPU
 # Temporal solution for 1 GPU.
@@ -78,12 +79,15 @@ if __name__ == '__main__':
                         results[f"{prompt}_{model}_th-{th}_{idx}"]["metrics"] = None
                         continue
                     reference = ground_truth[idx]
+                    t1 = time.time()
                     prompted_question = prompter.apply(question, prompt)
                     message, stats = llms.runLLM(model=model,
                                                  messages=[
                                                      prompted_question
                                                  ],
                                                  think=th)
+                    t2 = time.time()
+                    stats["total_execution_time_sec"] = t2-t1
                     if metrics is None:
                         skip_model = True
                     if reference is not None and len(message) > 0:
