@@ -1,3 +1,5 @@
+from sklearn.preprocessing import MinMaxScaler
+import plotly.express as px
 import gradio as gr
 import plotly.graph_objects as go
 import pandas as pd
@@ -6,25 +8,86 @@ import ollama_llms as llms
 import prompts
 from pathlib import Path
 import numpy as np
-
+import copy
+import app
 
 exp_path = Path("results")
 
 
-def norm(model_metrics, models, metrics):
-    for me in metrics:
+def plot_generic_bars(model_metrics, normed=False):
+    model_metrics = unlink_and_clean_metrics(model_metrics)
+    if normed:
+        model_metrics = norm(model_metrics)
+    df = pd.DataFrame(model_metrics)
+    df = df.reset_index().rename(columns={"index": "metric"})
+    df_long = df.melt(id_vars="metric", var_name="model", value_name="score")
+
+    # Plot
+    fig = px.bar(df_long, x="metric", y="score", color="model",
+                 barmode="group", title="Evaluation Metrics per Model")
+    fig.update_layout(xaxis_tickangle=-45,
+                      height=600)
+    return fig
+
+
+def norm(model_metrics):
+    all_models = list(model_metrics.keys())
+    all_metrics = list(model_metrics[all_models[0]])
+    for me in all_metrics:
         values = []
-        for mo in models:
+        for mo in all_models:
             values.append(model_metrics[mo][me])
         maxval, minval = np.max(values), np.min(values)
         values = values/maxval
-        for mo, val in zip(models, values):
+        for mo, val in zip(all_models, values):
             model_metrics[mo][me + f"  - max_val: {maxval:.2f}"] = val
             del model_metrics[mo][me]
     return model_metrics
 
 
-def plotly_radar_multiple_models(model_metrics: dict):
+def unlink_and_clean_metrics(model_metrics):
+    # Unfortunatelly, this is hardcoded.
+    # logic: get metric if exists else None
+    all_models = list(model_metrics.keys())
+    all_metrics = list(model_metrics[all_models[0]])
+    # Patch to clean wrong saved metrics.
+    for me in all_metrics:
+        if not isinstance(me, str):
+            for mo in all_models:
+                model_metrics[mo][me[0]] = model_metrics[mo][me]
+                del model_metrics[mo][me]
+    new_model_metrics = {}
+    for model_name, metrics in model_metrics.items():
+        row = {
+            "bleu": metrics["bleu"]["bleu"] if "bleu" in metrics else None,
+            "sacrebleu": metrics["sacrebleu"]["score"] if "sacrebleu" in metrics else None,
+            "chrf": metrics["chrf"]["score"] if "chrf" in metrics else None,
+            "google_bleu": metrics["google_bleu"]["google_bleu"] if "google_bleu" in metrics else None,
+            "meteor": metrics["meteor"]["meteor"] if "meteor" in metrics else None,
+            "rouge1": metrics["rouge"]["rouge1"] if "rouge" in metrics else None,
+            "rouge2": metrics["rouge"]["rouge2"] if "rouge" in metrics else None,
+            "rougeL": metrics["rouge"]["rougeL"] if "rouge" in metrics else None,
+            "wer": metrics["wer"] if "wer" in metrics else None,
+            "cer": metrics["cer"] if "cer" in metrics else None,
+            "cer_score": metrics["character"]["cer_score"] if "character" in metrics else None,
+            "ter": metrics["ter"]["score"] if "ter" in metrics else None,
+            "mauve": metrics["mauve"].mauve if "mauve" in metrics else None,
+            "bertscore_f1": metrics["bertscore"]["f1"][0] if "bertscore" in metrics else None,
+            "perplexity": metrics["perplexity"]["mean_perplexity"] if "perplexity" in metrics else None,
+            "frugalscore": metrics["frugalscore"]["scores"][0] if "frugalscore" in metrics else None,
+            "bleurt": metrics["bleurt"]["scores"][0] if "bleurt" in metrics else None,
+        }
+        new_model_metrics[model_name] = row
+    return new_model_metrics
+
+
+def plotly_radar_metrics(model_metrics: dict):
+    model_metrics = unlink_and_clean_metrics(model_metrics)
+    fig = plotly_generic_radar_multiple_models(model_metrics)
+    return fig
+
+
+def plotly_generic_radar_multiple_models(model_metrics: dict):
     """
     model_metrics = {
         "llama3": { stats, blabla },
@@ -32,9 +95,7 @@ def plotly_radar_multiple_models(model_metrics: dict):
         "ollama": {stats, blabla },
     }
     """
-    all_models = list(model_metrics.keys())
-    all_metrics = list(model_metrics[all_models[0]])
-    model_metrics = norm(model_metrics, all_models, all_metrics)
+    model_metrics = norm(model_metrics)
     all_models = list(model_metrics.keys())
     all_metrics = list(model_metrics[all_models[0]])
     categories = all_metrics + [all_metrics[0]]
@@ -52,8 +113,9 @@ def plotly_radar_multiple_models(model_metrics: dict):
 
     fig.update_layout(
         polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+        height=600,
         showlegend=True,
-        title="Relative Model Comparison"
+        title="Execution Performance Model Comparison (Relative)"
     )
 
     return fig
@@ -63,12 +125,25 @@ def run_pipeline(temperature, top_p, top_k, tfs_z, model, reasoning, prompt_type
     # Reasoning checkbox: Convert to boolean doesnt work as tetx
     use_reasoning = "Reason" in reasoning if reasoning else False
 
-    pipeline_results = ["zero-cot_llama3.2_th-False_7",
-                        "few-shot_llama3_th-True_12",
-                        "auto-cot_llama3_th-False_0",
-                        "auto-cot_llama3_th-False_12",
-                        ]
+    # Manual tests
+    # pipeline_results = ["zero-cot_llama3.2_th-False_7",
+    #                     "few-shot_llama3_th-True_12",
+    #                     "auto-cot_llama3_th-False_0",
+    #                     "auto-cot_llama3_th-False_12",
+    #                     ]
+    pipeline_results = app.run_experiments(temperature, 
+                                           top_p, 
+                                           top_k, 
+                                           tfs_z,
+                                           model, 
+                                           reasoning, 
+                                           prompt_types, 
+                                           question,
+                                           try_test_cases_scanerios=False,
+                                           )
+
     model_stats = {}
+    model_metrics = {}
     model_message = ""
     for model_res in pipeline_results:
         res = np.load(exp_path.joinpath(model_res + ".npy"),
@@ -76,17 +151,27 @@ def run_pipeline(temperature, top_p, top_k, tfs_z, model, reasoning, prompt_type
         stats = res["stats"]
         message = res["message"]
         metrics = res["metrics"]
-        # question = res["question"]
-        # gt = res["gt"]
+        question = res["question"]
+        gt = res["gt"]
         if stats is None:
             print(
                 f"model: {model_res} is empty. Expriment failed or incomplete!")
             continue
 
         model_stats[model_res] = stats
-        model_message += f"### {model} Output:\nPrompt: {prompt_types}\nReasoning: {use_reasoning}\nQ: {question}\nA: {message}\n\n"
-    fig = plotly_radar_multiple_models(model_stats)
-    return model_message, fig
+        model_metrics[model_res] = metrics
+        model_message = model_message + \
+            f"### {model} - Output:" + \
+            f"\nPrompt: {prompt_types}" + \
+            f"\nReasoning: {use_reasoning}" + \
+            f"\nQ: {question}" + \
+            f"\nA: {message}\n\n\n" + \
+            f"\nGT: {gt}"
+    fig1 = plotly_generic_radar_multiple_models(copy.deepcopy(model_stats))
+    fig2 = plotly_radar_metrics(copy.deepcopy(model_metrics))
+    fig3 = plot_generic_bars(copy.deepcopy(model_metrics), normed=False)
+    fig4 = plot_generic_bars(copy.deepcopy(model_metrics), normed=True)
+    return model_message, fig1, fig2, fig3, fig4
 
 
 with gr.Blocks() as interface:
@@ -109,12 +194,15 @@ with gr.Blocks() as interface:
                          info="Prompt Engineering Methods"),
         gr.Textbox(lines=3, label="Question", info="input to model")
     ]
-    outputs = [gr.Textbox(label="Model Output", lines=5),
-               gr.Plot()
-               ]
+    outputs_text = gr.Textbox(label="Model Output", lines=5)
+    with gr.Row():
+        plot1 = gr.Plot(label="Execution Stats")
+        plot2 = gr.Plot(label="Metrics")
+    with gr.Row():
+        plot3 = gr.Plot(label="Metrics 2")
+        plot4 = gr.Plot(label="Metrics 3")
+    outputs = [outputs_text, plot1, plot2, plot3, plot4]
     run_btn = gr.Button("Run")
     run_btn.click(fn=run_pipeline, inputs=inputs, outputs=outputs)
-    # reset_btn = gr.Button("Reset")
-    # reset_btn.click(fn=reset_inputs, inputs=[], outputs=inputs + outputs)
 
 interface.launch(share=False)

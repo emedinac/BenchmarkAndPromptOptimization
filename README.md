@@ -25,9 +25,10 @@ Specifically, Add:
 - [X] Self-Consistency.
 - [X] several metrics using Huggingface lib.
 - [X] Dataset Loader (Huggingface datasets only)
-- [ ] Interface and Visualization with Gradio.
+- [X] Interface and Visualization with Gradio.
+- [X] Interactivity in the visualizations.
 - [ ] Set main pipeline and argument customazation.
-- [ ] Interactivity in the visualizations.
+- [ ] Support for multiple parallel experiments.
 
 
 
