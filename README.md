@@ -2,6 +2,8 @@
 
 Benchmark and Prompt Optimization Platform for Offline Models (Locally‑Hosted) LLMs for Financial Q&A in the stock market text data.
 
+![Demo animation](figures/demo.gif)
+
 ## Locally‑Hosted LLM for Financial Q&A
 
 A fully offline system leveraging Ollama to run local LLMs for experimenting with prompt engineering techniques, including Chain-of-Thought (CoT) and Self-Consistency on answering finance-related questions, particularly around stock market data and trends. This tool is designed for fast iteration, performance benchmarking, and analysis of prompt effectiveness in a domain where precision matters. Includes interactive parameter tuning (for the LLM and metrics), metrics visualization, and an experimentation workflow.
@@ -29,7 +31,7 @@ Specifically, Add:
 - [X] Interactivity in the visualizations.
 - [X] Set main pipeline and argument customazation.
 - [X] Support for multiple parallel experiments.
-- [ ] Support for non-dataset samples (different metrics shown)
+- [X] Support for non-dataset samples (setting 1 manual ground truth)
 
 ## Install
 
@@ -84,9 +86,3 @@ If the input text is not part fromthe dataset, different metrics are computed. F
 If this is the first time running the code. Run `python3 src/prepare_dataset.py` to get the embeddings, but the main code also compute them if they are not present :)
 
 This is used for the auto-CoT, this algorithm computes the K-means of the embedding space and is used to generate the CoT before calling the LLM response.
-
-### Run massive tests (not recommended)
-
-It takes a while because it calls all possible combinations of LLMs, Prompts, samples, reasoning (is available).
-
-Run: `python3 manual_tests.py`

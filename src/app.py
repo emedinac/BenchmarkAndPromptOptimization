@@ -56,12 +56,16 @@ def run_experiments(exp_path,
                     reasoning,
                     prompt,
                     question,
+                    grountruth,
                     samples,
                     seed,
                     ):
     if samples == 0:
-        input_texts = test_texts
-        ground_truth = [None] * test_texts
+        input_texts = [{'role': 'user',
+                       'context': 'I am an active investor and I want to increase my profit in the next years',
+                        'content': question}]
+        ground_truth = [grountruth]
+        idxs = ["text"]
     else:
         input_texts, ground_truth, idxs = prepare_dataset.build_validation(samples=samples,
                                                                            seed=seed)
@@ -74,7 +78,7 @@ def run_experiments(exp_path,
         for i, (idx, question) in enumerate(zip(idxs, input_texts)):
             exp = f"{pro}_{model}_th-{reasoning}_id{idx}"
             if exp_path.joinpath(exp + ".npy").exists():
-                print(f"Experiment {exp} already exists, skipping...")
+                print(f"Experiment {exp} already exists, skipping...\n\n")
                 continue
             print(f"{exp}: {question['content']}")
             reference = ground_truth[i]
@@ -97,11 +101,8 @@ def run_experiments(exp_path,
 
             t2 = time.time()
             stats["total_execution_time_sec"] = t2-t1
-            if reference is not None and len(message) > 0:
-                print("computing metrics")
-                scores = metrics.compute(message, reference)
-            else:
-                scores = None
+            print("computing metrics")
+            scores = metrics.compute(message, reference)
             # save experiment
             results[f"{exp}"] = {}
             results[f"{exp}"]["message"] = message

@@ -34,7 +34,11 @@ def norm(model_metrics):
         for mo in all_models:
             values.append(model_metrics[mo][me])
         maxval, minval = np.max(values), np.min(values)
-        values = values/maxval
+        if maxval == minval:  # Could be improved deeping on data.
+            values = values/(maxval + 1e-9)  # avoid division by zero
+        else:
+            values = (values - minval) / (maxval -
+                                          minval + 1e-9)  # normalize to [0, 1]
         for mo, val in zip(all_models, values):
             model_metrics[mo][me + f"  - max_val: {maxval:.2f}"] = val
             del model_metrics[mo][me]
@@ -125,6 +129,7 @@ def run_pipeline(temperature,
                  reasoning,
                  prompt,
                  question,
+                 grountruth,
                  samples,
                  seed_number,
                  ):
@@ -147,6 +152,7 @@ def run_pipeline(temperature,
                                            use_reasoning,
                                            prompt,
                                            question,
+                                           grountruth,
                                            samples,
                                            seed_number,
                                            )
@@ -186,7 +192,7 @@ def run_pipeline(temperature,
     return model_message, fig1, fig2, fig3, fig4
 
 
-def main(args):
+def main():
     with gr.Blocks() as interface:
         gr.Markdown("Benchmark and Prompt Optimization Platform")
         inputs = [  # https://www.gradio.app/main/docs/gradio/slider
@@ -208,25 +214,32 @@ def main(args):
         ]
         with gr.Row():
             with gr.Row():
-                input_text = gr.Textbox(lines=7, label="Question",
-                                        info="input to model")
+                with gr.Column():
+                    input_text = gr.Textbox(lines=1,
+                                            label="Question",
+                                            value="1+1?",
+                                            info="input to model")
+                    gt_text = gr.Textbox(lines=1,
+                                         label="Expected Output (not ideal just 1, but for testing)",
+                                         value="2",
+                                         info="GT to compute metrics")
             with gr.Column():
                 input_number = gr.Number(value=1, label="Samples",
                                          info="Number of samples to use obtained from the financial databases. If you want to use test cases, set this to 0.")
                 seed_number = gr.Number(value=0, label="Seed",
                                         info="Seed to obtain samples from the database")
-        inputs = inputs + [input_text, input_number, seed_number]
-
-        run_btn = gr.Button("Run")  # Run the pipeline
+        inputs = inputs + [input_text, gt_text, input_number, seed_number]
 
         with gr.Row():
-            outputs_text = gr.Textbox(label="Model Output", lines=5)
-            with gr.Row():
-                plot1 = gr.Plot(label="Execution Stats")
-                plot2 = gr.Plot(label="Metrics")
-            with gr.Row():
-                plot3 = gr.Plot(label="Metrics 2")
-                plot4 = gr.Plot(label="Metrics 3")
+            run_btn = gr.Button("Run")  # Run the pipeline
+
+        outputs_text = gr.Textbox(label="Model Output", lines=5)
+        with gr.Row():
+            plot1 = gr.Plot(label="Execution Stats")
+            plot2 = gr.Plot(label="Metrics")
+        with gr.Row():
+            plot3 = gr.Plot(label="Metrics 2")
+            plot4 = gr.Plot(label="Metrics 3")
         outputs = [outputs_text, plot1, plot2, plot3, plot4]
 
         run_btn.click(fn=run_pipeline, inputs=inputs, outputs=outputs)
@@ -243,4 +256,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     exp_path = Path(args.exp_path)
     exp_path.mkdir(parents=True, exist_ok=True)
-    main(exp_path)
+    main()
