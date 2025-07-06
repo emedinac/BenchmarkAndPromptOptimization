@@ -1,10 +1,8 @@
-# Benchmark and Prompt Optimization Platform for Offline Models
+# Prompt Benchmark Interface for Offline Models
 
-Benchmark and Prompt Optimization Platform for Offline Models (Locally‑Hosted) LLMs for Financial Q&A in the stock market text data.
+Prompt Benchmark Interface for Offline Models (Locally‑Hosted) LLMs for Financial Q&A in the stock market text data.
 
 ![Demo animation](figures/demo.gif)
-
-## Locally‑Hosted LLM for Financial Q&A
 
 A fully offline system leveraging Ollama to run local LLMs for experimenting with prompt engineering techniques, including Chain-of-Thought (CoT) and Self-Consistency on answering finance-related questions, particularly around stock market data and trends. This tool is designed for fast iteration, performance benchmarking, and analysis of prompt effectiveness in a domain where precision matters. Includes interactive parameter tuning (for the LLM and metrics), metrics visualization, and an experimentation workflow.
 
