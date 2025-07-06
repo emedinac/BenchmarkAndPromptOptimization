@@ -27,8 +27,10 @@ Specifically, Add:
 - [X] Dataset Loader (Huggingface datasets only)
 - [X] Interface and Visualization with Gradio.
 - [X] Interactivity in the visualizations.
-- [ ] Set main pipeline and argument customazation.
-- [ ] Support for multiple parallel experiments.
+- [X] Set main pipeline and argument customazation.
+- [X] Support for multiple parallel experiments.
+- [X] Support for non-dataset samples (different metrics shown)
+- [ ] Show the hyperpameters used (e.g. Temperature). Or simply create another file
 
 ## Install
 
@@ -57,6 +59,8 @@ curl -fsSL https://ollama.com/install.sh | sh
 
 Tested models: `llama3`, `llama3.2`, `deepseek-r1`, `gemma3`, `qwen3`
 
-Run `python3 src/prepare_dataset.py` to get the embeddings, but the main code also compute them if they are not present :) 
+Run `python3 src/prepare_dataset.py` to get the embeddings, but the main code also compute them if they are not present :)
 
-Run the main logic: `python3 main.py`
+Run the main logic: `python3 interface.py`
+
+For manual tests, Run: `python3 manual_tests.py`

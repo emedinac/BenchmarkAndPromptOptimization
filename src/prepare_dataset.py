@@ -8,6 +8,7 @@ from pathlib import Path
 
 def get_dataset():
     # test dataset - publicly available for stock market.
+    # would be better/faster to save it in a local disk.
     ds1 = load_dataset(
         "jyanimaulik/yahoo_finance_stock_market_news", split="train")
     ds2 = load_dataset(
@@ -28,19 +29,26 @@ def get_dataset():
     return merged_dataset
 
 
-def build_validation(samples: int, seed: int = 0):
+def build_validation(dataset_path: str = "../stock_market_datasets",
+                     samples: int = 1,
+                     seed: int = 0):
     np.random.seed(seed)
-    dataset = get_dataset()
+    if Path(dataset_path).exists():
+        dataset = load_from_disk(dataset_path)
+    else:
+        dataset = get_dataset()
     dataset_texts = []
     ground_truth = []
+    idxs = []
     dataset_lenght = len(dataset)
     for _ in range(samples):
-        data = dataset[np.random.randint(dataset_lenght)]
+        idxs.append(np.random.randint(dataset_lenght))
+        data = dataset[idxs[-1]]
         dataset_texts.append({'role': 'user',
                               'context': 'I am an active investor and I want to increase my profit in the next years',
                               'content': data["Question"]})
         ground_truth.append(data["Answer"])
-    return dataset_texts, ground_truth
+    return dataset_texts, ground_truth, idxs
 
 
 def get_dataset_embeddings(embeddings_path: str = "../stock_market_embeddings.npy",

@@ -53,8 +53,8 @@ if __name__ == '__main__':
         input_texts = test_texts
         ground_truth = [None] * test_texts
     else:
-        input_texts, ground_truth = prepare_dataset.build_validation(samples=15,
-                                                                     seed=0)
+        input_texts, ground_truth, idxs = prepare_dataset.build_validation(samples=15,
+                                                                           seed=0)
 
     think = [False, True]
 

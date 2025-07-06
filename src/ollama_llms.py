@@ -131,7 +131,7 @@ def runLLM(messages: list[str],
                                       )
     except:
         print("\nUnavailable model...\n\n")
-        return "", None
+        return "", {}
     # From source https://github.com/ollama/ollama-python
     # print(response['message']['content'])
     # # or access fields directly from the response object

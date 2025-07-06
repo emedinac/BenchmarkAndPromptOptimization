@@ -3,7 +3,7 @@ import numpy as np
 import prepare_dataset
 from metrics import Metrics
 import ollama_llms as llms
-from prompts import Prompter, available_prompt_engineeing
+from prompts import Prompter
 import time
 from inputs import test_texts
 
@@ -16,6 +16,7 @@ gpus = tf.config.list_physical_devices('GPU')
 if gpus:
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
+
 used_metrics = ["exact_match",
                 ("bertscore", "distilbert-base-uncased"),
                 # ("bertscore", "prajjwal1/bert-small"),
@@ -46,66 +47,70 @@ used_metrics = ["exact_match",
                 ]
 
 
-def run_experiments(temperature,
+def run_experiments(exp_path,
+                    temperature,
                     top_p,
                     top_k,
                     tfs_z,
                     model,
                     reasoning,
-                    prompt_types,
+                    prompt,
                     question,
-                    try_test_cases_scanerios=False):
-
-    if try_test_cases_scanerios:
+                    samples,
+                    seed,
+                    ):
+    if samples == 0:
         input_texts = test_texts
         ground_truth = [None] * test_texts
     else:
-        input_texts, ground_truth = prepare_dataset.build_validation(samples=15,
-                                                                     seed=0)
+        input_texts, ground_truth, idxs = prepare_dataset.build_validation(samples=samples,
+                                                                           seed=seed)
     metrics = Metrics(used_metrics)
-    think = [False, True]
 
     results = {}
     beshort = True
     prompter = Prompter(beshort=beshort, examples_to_use=None)
-    exp = f"{prompt}_{model}_th-{th}_{idx}"
-    for idx, question in enumerate(input_texts):
-        print(
-            f"{exp}: {question['content']}")
-        if skip_model:
-            results[f"{exp}"] = {}
-            results[f"{exp}"]["message"] = ""
-            results[f"{exp}"]["stats"] = None
-            results[f"{exp}"]["metrics"] = None
-            continue
-        reference = ground_truth[idx]
-        t1 = time.time()
-        prompted_question = prompter.apply(question, prompt)
-        message, stats = llms.runLLM(model=model,
-                                        messages=[
-                                            prompted_question
-                                        ],
-                                        think=th)
-        t2 = time.time()
-        stats["total_execution_time_sec"] = t2-t1
-        if metrics is None:
-            skip_model = True
-        if reference is not None and len(message) > 0:
-            print("computing metrics")
-            scores = metrics.compute(message, reference)
-        else:
-            scores = None
-        # save experiment
-        results[f"{exp}"] = {}
-        results[f"{exp}"]["message"] = message
-        results[f"{exp}"]["question"] = question['content']
-        results[f"{exp}"]["gt"] = reference
-        results[f"{exp}"]["stats"] = stats
-        results[f"{exp}"]["metrics"] = scores
-        np.save(f"results/{exp}.npy",
-                results[f"{exp}"]
-                )
-        print(f"{scores}")
+    for pro in prompt:
+        for i, (idx, question) in enumerate(zip(idxs, input_texts)):
+            exp = f"{pro}_{model}_th-{reasoning}_{idx}"
+            if exp_path.joinpath(exp + ".npy").exists():
+                print(f"Experiment {exp} already exists, skipping...")
+                continue
+            print(f"{exp}: {question['content']}")
+            reference = ground_truth[i]
+            t1 = time.time()
+            prompted_question = prompter.apply(question, pro)
+            message, stats = llms.runLLM(model=model,
+                                         messages=[
+                                             prompted_question
+                                         ],
+                                         think=reasoning,
+                                         options={
+                                             "temperature": temperature,
+                                             "top_k": top_k,
+                                             "top_p": top_p,
+                                             "tfs_z": tfs_z,
+                                             # for some tests.
+                                             "repeat_penalty": 1.2,
+                                             "mirostat": 1.0, }
+                                         )
 
-    np.save("results/results.npy", results)
-    print("end")
+            t2 = time.time()
+            stats["total_execution_time_sec"] = t2-t1
+            if reference is not None and len(message) > 0:
+                print("computing metrics")
+                scores = metrics.compute(message, reference)
+            else:
+                scores = None
+            # save experiment
+            results[f"{exp}"] = {}
+            results[f"{exp}"]["message"] = message
+            results[f"{exp}"]["question"] = question['content']
+            results[f"{exp}"]["gt"] = reference
+            results[f"{exp}"]["stats"] = stats
+            results[f"{exp}"]["metrics"] = scores
+            np.save(f"results/{exp}.npy",
+                    results[f"{exp}"]
+                    )
+            print(f"{scores}")
+    print("Processing done.")

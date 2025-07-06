@@ -4,6 +4,7 @@ import ollama_llms as llms
 import faiss
 from sklearn.metrics.pairwise import cosine_similarity
 import copy
+from pathlib import Path
 
 # Tried with 5-10 few-shot examples just to validate the robustness of the LLM.
 simple_examples_CoT = [{"Q": "Describe the process of a stock split and its impact on shareholders.",
@@ -124,19 +125,24 @@ class Prompter:
     def _zero_cot(question):
         return f"Question: {question}\nLet's think step-by-step. Answer:"
 
-    def _compute_steps(self, exemplars):
-        if self.reference_dataset_embeddings is None:
-            self.reference_dataset_embeddings, self.reference_dataset = get_dataset_embeddings()
+    def _compute_steps(self, exemplars, n_iter=25):
+        prev_computation = Path(f"exemplars_{exemplars}_it{n_iter}.npy")
+
+        if prev_computation.exists():
+            self.exemplars = np.load(prev_computation, allow_pickle=True)
 
         if self.centroids is None:
+            self.reference_dataset_embeddings, self.reference_dataset = get_dataset_embeddings()
+
             self.labels, self.centroids = faiss_kmeans(self.reference_dataset_embeddings,
                                                        num_clusters=exemplars,
-                                                       n_iter=25)
+                                                       n_iter=n_iter)
 
             self.exemplar_indices = [int(np.argmin(np.linalg.norm(
                 self.reference_dataset_embeddings - center, axis=1))) for center in self.centroids]
             self.exemplars = [self.reference_dataset[i]
                               for i in self.exemplar_indices]
+            np.save(prev_computation, self.exemplars)
 
         # Generate chain-of-thought for each exemplar
         for ex in self.exemplars:

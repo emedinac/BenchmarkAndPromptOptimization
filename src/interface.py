@@ -1,9 +1,7 @@
-from sklearn.preprocessing import MinMaxScaler
 import plotly.express as px
 import gradio as gr
 import plotly.graph_objects as go
 import pandas as pd
-import matplotlib.pyplot as plt
 import ollama_llms as llms
 import prompts
 from pathlib import Path
@@ -12,6 +10,7 @@ import copy
 import app
 
 exp_path = Path("results")
+exp_path.mkdir(parents=True, exist_ok=True)
 
 
 def plot_generic_bars(model_metrics, normed=False):
@@ -121,7 +120,17 @@ def plotly_generic_radar_multiple_models(model_metrics: dict):
     return fig
 
 
-def run_pipeline(temperature, top_p, top_k, tfs_z, model, reasoning, prompt_types, question):
+def run_pipeline(temperature,
+                 top_p,
+                 top_k,
+                 tfs_z,
+                 model,
+                 reasoning,
+                 prompt,
+                 question,
+                 samples,
+                 seed_number,
+                 ):
     # Reasoning checkbox: Convert to boolean doesnt work as tetx
     use_reasoning = "Reason" in reasoning if reasoning else False
 
@@ -131,23 +140,25 @@ def run_pipeline(temperature, top_p, top_k, tfs_z, model, reasoning, prompt_type
     #                     "auto-cot_llama3_th-False_0",
     #                     "auto-cot_llama3_th-False_12",
     #                     ]
-    pipeline_results = app.run_experiments(temperature, 
-                                           top_p, 
-                                           top_k, 
+    pipeline_results = app.run_experiments(exp_path,
+                                           temperature,
+                                           top_p,
+                                           top_k,
                                            tfs_z,
-                                           model, 
-                                           reasoning, 
-                                           prompt_types, 
+                                           model,
+                                           use_reasoning,
+                                           prompt,
                                            question,
-                                           try_test_cases_scanerios=False,
+                                           samples,
+                                           seed_number,
                                            )
-
+    pipeline_results = exp_path.glob("*.npy")
     model_stats = {}
     model_metrics = {}
     model_message = ""
     for model_res in pipeline_results:
-        res = np.load(exp_path.joinpath(model_res + ".npy"),
-                      allow_pickle=True).all()
+        model_res = model_res.name
+        res = np.load(exp_path.joinpath(model_res), allow_pickle=True).all()
         stats = res["stats"]
         message = res["message"]
         metrics = res["metrics"]
@@ -155,18 +166,19 @@ def run_pipeline(temperature, top_p, top_k, tfs_z, model, reasoning, prompt_type
         gt = res["gt"]
         if stats is None:
             print(
-                f"model: {model_res} is empty. Expriment failed or incomplete!")
+                f"model: {model_res[:-4]} is empty. Expriment failed or incomplete!")
             continue
 
-        model_stats[model_res] = stats
-        model_metrics[model_res] = metrics
+        model_stats[model_res[:-4]] = stats
+        model_metrics[model_res[:-4]] = metrics
         model_message = model_message + \
             f"### {model} - Output:" + \
-            f"\nPrompt: {prompt_types}" + \
+            f"\nPrompt: {model_res.split('_')[0]}" + \
             f"\nReasoning: {use_reasoning}" + \
-            f"\nQ: {question}" + \
-            f"\nA: {message}\n\n\n" + \
-            f"\nGT: {gt}"
+            f"\n--GT: {gt}" + \
+            f"\n--Q: {question}" + \
+            f"\n--A: {message}\n=========================\n\n\n"
+
     fig1 = plotly_generic_radar_multiple_models(copy.deepcopy(model_stats))
     fig2 = plotly_radar_metrics(copy.deepcopy(model_metrics))
     fig3 = plot_generic_bars(copy.deepcopy(model_metrics), normed=False)
@@ -192,8 +204,16 @@ with gr.Blocks() as interface:
                          info="Reasoning block usage"),
         gr.CheckboxGroup(prompts.available_prompt_engineeing, value=["zero-shot"], label="Prompt",
                          info="Prompt Engineering Methods"),
-        gr.Textbox(lines=3, label="Question", info="input to model")
     ]
+    with gr.Column():
+        with gr.Row():
+            input_text = gr.Textbox(lines=3, label="Question",
+                                    info="input to model")
+            input_number = gr.Number(value=1, label="Samples",
+                                     info="Number of samples to use obtained from the financial databases. If you want to use test cases, set this to 0.")
+        seed_number = gr.Number(value=0, label="Seed",
+                                info="Seed to obtain samples from the database")
+    inputs = inputs + [input_text, input_number, seed_number]
     outputs_text = gr.Textbox(label="Model Output", lines=5)
     with gr.Row():
         plot1 = gr.Plot(label="Execution Stats")
