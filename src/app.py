@@ -72,7 +72,7 @@ def run_experiments(exp_path,
     prompter = Prompter(beshort=beshort, examples_to_use=None)
     for pro in prompt:
         for i, (idx, question) in enumerate(zip(idxs, input_texts)):
-            exp = f"{pro}_{model}_th-{reasoning}_{idx}"
+            exp = f"{pro}_{model}_th-{reasoning}_id{idx}"
             if exp_path.joinpath(exp + ".npy").exists():
                 print(f"Experiment {exp} already exists, skipping...")
                 continue
@@ -109,6 +109,17 @@ def run_experiments(exp_path,
             results[f"{exp}"]["gt"] = reference
             results[f"{exp}"]["stats"] = stats
             results[f"{exp}"]["metrics"] = scores
+            exp_dict = {"temperature": temperature,
+                        "top_p": top_p,
+                        "top_k": top_k,
+                        "tfs_z": tfs_z,
+                        "model": model,
+                        "reasoning": reasoning,
+                        "prompt": pro,
+                        "samples": samples,
+                        "seed": seed
+                        }
+            results[f"{exp}"]["exp_dict"] = exp_dict
             np.save(f"results/{exp}.npy",
                     results[f"{exp}"]
                     )

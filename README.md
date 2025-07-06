@@ -30,7 +30,6 @@ Specifically, Add:
 - [X] Set main pipeline and argument customazation.
 - [X] Support for multiple parallel experiments.
 - [ ] Support for non-dataset samples (different metrics shown)
-- [ ] Show the hyperpameters used (e.g. Temperature). Or simply create another file
 
 ## Install
 
@@ -57,10 +56,37 @@ curl -fsSL https://ollama.com/install.sh | sh
 
 ## Run
 
+### Run
+
+Run the main logic:
+
+```bash
+python3 interface.py
+```
+
+IMPORTANT: Set samples to 0 in the interface to accept input texts (Question section).
+IMPORTANT 2: The code is slow in the first run, later it uses precomputed values.
+
+### Short explaination
+
+This repo is base on 4 finantial datasets collected from huggingface (online available): `jyanimaulik/yahoo_finance_stock_market_news`, `davzoku/moecule-stock-market-outlook`, `Ubaidbhat/stock_market_basics`, `yc4142/stockmarketCoT`
+
 Tested models: `llama3`, `llama3.2`, `deepseek-r1`, `gemma3`, `qwen3`
 
-Run `python3 src/prepare_dataset.py` to get the embeddings, but the main code also compute them if they are not present :)
+Tested metrics: `exact_match`,  `bertscore`, `bleu`, `bleurt`, `cer`, `character`, `chrf`, `frugalscore`, `google_bleu`, `mauve`, `meteor`, `"perplexity`, `rouge`, `sacrebleu`, `ter`, `wer`. NOTE: All the metrics are computed, metric selection was not implemented. Change metric configuration is needed (some warning appear here), my GPU was small (8GB): for instance: ('bleurt', 'bleurt-large-512').
 
-Run the main logic: `python3 interface.py`
+The parameters (e.g. Temperature) showed in Gradio are saved directly but not displayed nicely :'(. A folder called `restuls` (or optionally set this input via argument) is created to record all experiments. The code automatically load all `npy` files located inside.
 
-For manual tests, Run: `python3 manual_tests.py`
+If the input text is not part fromthe dataset, different metrics are computed. For embedding similarity, etc.
+
+### Embeddings Dataset Preprocessing
+
+If this is the first time running the code. Run `python3 src/prepare_dataset.py` to get the embeddings, but the main code also compute them if they are not present :)
+
+This is used for the auto-CoT, this algorithm computes the K-means of the embedding space and is used to generate the CoT before calling the LLM response.
+
+### Run massive tests (not recommended)
+
+It takes a while because it calls all possible combinations of LLMs, Prompts, samples, reasoning (is available).
+
+Run: `python3 manual_tests.py`

@@ -9,9 +9,6 @@ import numpy as np
 import copy
 import app
 
-exp_path = Path("results")
-exp_path.mkdir(parents=True, exist_ok=True)
-
 
 def plot_generic_bars(model_metrics, normed=False):
     model_metrics = unlink_and_clean_metrics(model_metrics)
@@ -131,6 +128,7 @@ def run_pipeline(temperature,
                  samples,
                  seed_number,
                  ):
+    global exp_path
     # Reasoning checkbox: Convert to boolean doesnt work as tetx
     use_reasoning = "Reason" in reasoning if reasoning else False
 
@@ -163,6 +161,7 @@ def run_pipeline(temperature,
         message = res["message"]
         metrics = res["metrics"]
         question = res["question"]
+        exp_dict = res["exp_dict"]
         gt = res["gt"]
         if stats is None:
             print(
@@ -173,6 +172,7 @@ def run_pipeline(temperature,
         model_metrics[model_res[:-4]] = metrics
         model_message = model_message + \
             f"### {model} - Output:" + \
+            f"\nExperiment configuration: {str(exp_dict)}" + \
             f"\nPrompt: {model_res.split('_')[0]}" + \
             f"\nReasoning: {use_reasoning}" + \
             f"\n--GT: {gt}" + \
@@ -186,43 +186,61 @@ def run_pipeline(temperature,
     return model_message, fig1, fig2, fig3, fig4
 
 
-with gr.Blocks() as interface:
-    gr.Markdown("Benchmark and Prompt Optimization Platform")
-    inputs = [  # https://www.gradio.app/main/docs/gradio/slider
-        # set with default values.
-        gr.Slider(0, 1, step=0.1, value=0.7, label="Temperature",
-                  info="The temperature of the model. Increasing the temperature will make the model answer more creatively. (Default: 0.8)"),
-        gr.Slider(0, 1, step=0.01, value=0.9, label="Top-p",
-                  info="Works together with top-k. A higher value(e.g., 0.95) will lead to more diverse text, while a lower value(e.g., 0.5) will generate more focused and conservative text. (Default: 0.9)"),
-        gr.Slider(1, 1000, step=1, value=40, label="Top-k",
-                  info="Reduces the probability of generating nonsense. A higher value (e.g. 100) will give more diverse answers, while a lower value (e.g. 10) will be more conservative. (Default: 40)"),
-        gr.Slider(0, 1, step=0.01, value=1, label="Tfs-z",
-                  info="Tail free sampling is used to reduce the impact of less probable tokens from the output. A higher value(e.g., 2.0) will reduce the impact more, while a value of 1.0 disables this setting. (default: 1)"),
-        gr.Dropdown(llms.available_llm_models, value="llama3", label="Model",
-                    info="Models used for this project"),
-        gr.CheckboxGroup(["Reason"], label="Reasoning",
-                         info="Reasoning block usage"),
-        gr.CheckboxGroup(prompts.available_prompt_engineeing, value=["zero-shot"], label="Prompt",
-                         info="Prompt Engineering Methods"),
-    ]
-    with gr.Column():
+def main(args):
+    with gr.Blocks() as interface:
+        gr.Markdown("Benchmark and Prompt Optimization Platform")
+        inputs = [  # https://www.gradio.app/main/docs/gradio/slider
+            # set with default values.
+            gr.Slider(0, 1, step=0.1, value=0.7, label="Temperature",
+                      info="The temperature of the model. Increasing the temperature will make the model answer more creatively. (Default: 0.8)"),
+            gr.Slider(0, 1, step=0.01, value=0.9, label="Top-p",
+                      info="Works together with top-k. A higher value(e.g., 0.95) will lead to more diverse text, while a lower value(e.g., 0.5) will generate more focused and conservative text. (Default: 0.9)"),
+            gr.Slider(1, 1000, step=1, value=40, label="Top-k",
+                      info="Reduces the probability of generating nonsense. A higher value (e.g. 100) will give more diverse answers, while a lower value (e.g. 10) will be more conservative. (Default: 40)"),
+            gr.Slider(0, 1, step=0.01, value=1, label="Tfs-z",
+                      info="Tail free sampling is used to reduce the impact of less probable tokens from the output. A higher value(e.g., 2.0) will reduce the impact more, while a value of 1.0 disables this setting. (default: 1)"),
+            gr.Dropdown(llms.available_llm_models, value="llama3", label="Model",
+                        info="Models used for this project"),
+            gr.CheckboxGroup(["Reason"], label="Reasoning",
+                             info="Reasoning block usage"),
+            gr.CheckboxGroup(prompts.available_prompt_engineeing, value=["zero-shot"], label="Prompt",
+                             info="Prompt Engineering Methods"),
+        ]
         with gr.Row():
-            input_text = gr.Textbox(lines=3, label="Question",
-                                    info="input to model")
-            input_number = gr.Number(value=1, label="Samples",
-                                     info="Number of samples to use obtained from the financial databases. If you want to use test cases, set this to 0.")
-        seed_number = gr.Number(value=0, label="Seed",
-                                info="Seed to obtain samples from the database")
-    inputs = inputs + [input_text, input_number, seed_number]
-    outputs_text = gr.Textbox(label="Model Output", lines=5)
-    with gr.Row():
-        plot1 = gr.Plot(label="Execution Stats")
-        plot2 = gr.Plot(label="Metrics")
-    with gr.Row():
-        plot3 = gr.Plot(label="Metrics 2")
-        plot4 = gr.Plot(label="Metrics 3")
-    outputs = [outputs_text, plot1, plot2, plot3, plot4]
-    run_btn = gr.Button("Run")
-    run_btn.click(fn=run_pipeline, inputs=inputs, outputs=outputs)
+            with gr.Row():
+                input_text = gr.Textbox(lines=7, label="Question",
+                                        info="input to model")
+            with gr.Column():
+                input_number = gr.Number(value=1, label="Samples",
+                                         info="Number of samples to use obtained from the financial databases. If you want to use test cases, set this to 0.")
+                seed_number = gr.Number(value=0, label="Seed",
+                                        info="Seed to obtain samples from the database")
+        inputs = inputs + [input_text, input_number, seed_number]
 
-interface.launch(share=False)
+        run_btn = gr.Button("Run")  # Run the pipeline
+
+        with gr.Row():
+            outputs_text = gr.Textbox(label="Model Output", lines=5)
+            with gr.Row():
+                plot1 = gr.Plot(label="Execution Stats")
+                plot2 = gr.Plot(label="Metrics")
+            with gr.Row():
+                plot3 = gr.Plot(label="Metrics 2")
+                plot4 = gr.Plot(label="Metrics 3")
+        outputs = [outputs_text, plot1, plot2, plot3, plot4]
+
+        run_btn.click(fn=run_pipeline, inputs=inputs, outputs=outputs)
+
+    interface.launch(share=False)
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="Run the Benchmark and Prompt Optimization Platform")
+    parser.add_argument("--exp_path", type=str, default="results",
+                        help="Path to save the results of the experiments")
+    args = parser.parse_args()
+    exp_path = Path(args.exp_path)
+    exp_path.mkdir(parents=True, exist_ok=True)
+    main(exp_path)

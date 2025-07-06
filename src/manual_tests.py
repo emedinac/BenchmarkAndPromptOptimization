@@ -71,12 +71,12 @@ if __name__ == '__main__':
                 # for prompt in ["self-consistency"]:
                 for idx, question in enumerate(input_texts):
                     print(
-                        f"{prompt}_{model}_th-{th}_{idx}: {question['content']}")
+                        f"{prompt}_{model}_th-{th}_id{idx}: {question['content']}")
                     if skip_model:
-                        results[f"{prompt}_{model}_th-{th}_{idx}"] = {}
-                        results[f"{prompt}_{model}_th-{th}_{idx}"]["message"] = ""
-                        results[f"{prompt}_{model}_th-{th}_{idx}"]["stats"] = None
-                        results[f"{prompt}_{model}_th-{th}_{idx}"]["metrics"] = None
+                        results[f"{prompt}_{model}_th-{th}_id{idx}"] = {}
+                        results[f"{prompt}_{model}_th-{th}_id{idx}"]["message"] = ""
+                        results[f"{prompt}_{model}_th-{th}_id{idx}"]["stats"] = None
+                        results[f"{prompt}_{model}_th-{th}_id{idx}"]["metrics"] = None
                         continue
                     reference = ground_truth[idx]
                     t1 = time.time()
@@ -96,14 +96,14 @@ if __name__ == '__main__':
                     else:
                         scores = None
                     # save experiment
-                    results[f"{prompt}_{model}_th-{th}_{idx}"] = {}
-                    results[f"{prompt}_{model}_th-{th}_{idx}"]["message"] = message
-                    results[f"{prompt}_{model}_th-{th}_{idx}"]["question"] = question['content']
-                    results[f"{prompt}_{model}_th-{th}_{idx}"]["gt"] = reference
-                    results[f"{prompt}_{model}_th-{th}_{idx}"]["stats"] = stats
-                    results[f"{prompt}_{model}_th-{th}_{idx}"]["metrics"] = scores
-                    np.save(f"results/{prompt}_{model}_th-{th}_{idx}.npy",
-                            results[f"{prompt}_{model}_th-{th}_{idx}"]
+                    results[f"{prompt}_{model}_th-{th}_id{idx}"] = {}
+                    results[f"{prompt}_{model}_th-{th}_id{idx}"]["message"] = message
+                    results[f"{prompt}_{model}_th-{th}_id{idx}"]["question"] = question['content']
+                    results[f"{prompt}_{model}_th-{th}_id{idx}"]["gt"] = reference
+                    results[f"{prompt}_{model}_th-{th}_id{idx}"]["stats"] = stats
+                    results[f"{prompt}_{model}_th-{th}_id{idx}"]["metrics"] = scores
+                    np.save(f"results/{prompt}_{model}_th-{th}_id{idx}.npy",
+                            results[f"{prompt}_{model}_th-{th}_id{idx}"]
                             )
                     print(f"{scores}")
 

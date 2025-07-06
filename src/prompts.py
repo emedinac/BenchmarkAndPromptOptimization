@@ -127,11 +127,11 @@ class Prompter:
 
     def _compute_steps(self, exemplars, n_iter=25):
         prev_computation = Path(f"exemplars_{exemplars}_it{n_iter}.npy")
-
+        self.exemplars = None
         if prev_computation.exists():
             self.exemplars = np.load(prev_computation, allow_pickle=True)
 
-        if self.centroids is None:
+        if self.exemplars is None:
             self.reference_dataset_embeddings, self.reference_dataset = get_dataset_embeddings()
 
             self.labels, self.centroids = faiss_kmeans(self.reference_dataset_embeddings,
