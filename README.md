@@ -16,7 +16,7 @@ Tech stacks and concepts applied:
 - Huggungface environemnt: Load and evaluate different dataset.
 - Gradio: minimal and simple Front-end framework for software integration between AI and other software skills. It was used for visualziation. Not only test prompts, but facilitate iterative design with metrics.
 
-Specifically, Add:
+Specifically, Added:
 
 - [X] Ollama: with different input parameters (e.g. temperature, context, etc).
 - [X] Simple and minimal url search functionality (request and BeautifulSoup).
