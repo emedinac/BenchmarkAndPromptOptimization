@@ -29,7 +29,7 @@ Specifically, Add:
 - [X] Interactivity in the visualizations.
 - [X] Set main pipeline and argument customazation.
 - [X] Support for multiple parallel experiments.
-- [X] Support for non-dataset samples (different metrics shown)
+- [ ] Support for non-dataset samples (different metrics shown)
 - [ ] Show the hyperpameters used (e.g. Temperature). Or simply create another file
 
 ## Install
