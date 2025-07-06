@@ -36,8 +36,8 @@ Specifically, Added:
 ## Install
 
 ```bash
-python3.10 -m venv mvp1
-source mvp1/bin/activate
+python3.10 -m venv prj1
+source prj1/bin/activate
 pip install --upgrade pip
 pip install uv
 uv init . 
