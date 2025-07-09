@@ -6,7 +6,7 @@ Prompt Benchmark Interface for Offline Models (Locally‑Hosted) LLMs for Financ
 
 A fully offline system leveraging Ollama to run local LLMs for experimenting with prompt engineering techniques, including Chain-of-Thought (CoT) and Self-Consistency on answering finance-related questions, particularly around stock market data and trends. This tool is designed for fast iteration, performance benchmarking, and analysis of prompt effectiveness in a domain where precision matters. Includes interactive parameter tuning (for the LLM and metrics), metrics visualization, and an experimentation workflow.
 
-Tech stacks and concepts applied:
+## Key Features
 
 - Ollama: LLM framework with request and BeautifulSoup for url search.
 - Chain‑of‑Thought (CoT): Guides the model to generate intermediate reasoning steps before answering, improving clarity and problem-solving accuracy
@@ -50,7 +50,7 @@ Add more packages, not all metrics (from evaluate) were installed for this demo.
 uv add <package> --active
 ```
 
-Install Ollama - Should be done via Dockerfile later on.
+Install Ollama - Should be done via Dockerfile later on. I did not provide Dockerfile for this project.
 
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
@@ -71,7 +71,7 @@ IMPORTANT 2: The code is slow in the first run, later it uses precomputed values
 
 ### Short explaination
 
-This repo is base on 4 finantial datasets collected from huggingface (online available): `jyanimaulik/yahoo_finance_stock_market_news`, `davzoku/moecule-stock-market-outlook`, `Ubaidbhat/stock_market_basics`, `yc4142/stockmarketCoT`
+This repo is base on 4 finantial datasets collected from huggingface (online available): [yahoo_finance_stock_market_news](jyanimaulik/yahoo_finance_stock_market_news), [moecule-stock-market-outloo](davzoku/moecule-stock-market-outlook), [stock_market_basics](Ubaidbhat/stock_market_basics), [stockmarketCoT](yc4142/stockmarketCoT)
 
 Tested models: `llama3`, `llama3.2`, `deepseek-r1`, `gemma3`, `qwen3`
 
