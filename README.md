@@ -31,6 +31,8 @@ Specifically, Added:
 - [X] Support for multiple parallel experiments.
 - [X] Support for non-dataset samples (setting 1 manual ground truth)
 
+Chunks were left for the next project.
+
 ## Install
 
 ```bash
